@@ -304,6 +304,39 @@ In this article, I will explain how to create and manage the public and private 
 
 So, now our entire code is ready. We need to run the below steps to create infrastructure.
 
+* Create `Jenkinsfile` and add below code to it.
+  ```
+  properties([ parameters([
+  string( name: 'AWS_ACCESS_KEY_ID', defaultValue: ''),
+  string( name: 'AWS_SECRET_ACCESS_KEY', defaultValue: ''),
+  ]), pipelineTriggers([]) ])
+
+  // Environment Variables.
+  env.access_key = AWS_ACCESS_KEY_ID
+  env.secret_key = AWS_SECRET_ACCESS_KEY
+
+  pipeline {
+    agent any
+    stages {
+         stage ('Terraform Init'){
+            steps {
+            sh "terraform init"
+          }
+       }
+         stage ('Terraform Plan'){
+            steps {
+            sh "terraform plan" 
+         }
+      }
+         stage ('Terraform Apply - Create Instances and Configurig Clustering'){
+            steps {
+            sh "terraform apply -auto-approve"
+        }
+      }
+    }
+  }
+  ```
+
 * terraform init is to initialize the working directory and downloading plugins of the provider
 * terraform plan is to create the execution plan for our code
 * terraform apply is to create the actual infrastructure. It will ask you to provide the Access Key and Secret Key in order to create the infrastructure. So, instead of hardcoding the Access Key and Secret Key, it is better to apply at the run time.
